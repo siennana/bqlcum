@@ -35,27 +35,64 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
-var issueDate = '1707948000';
+/**
+ * returns latest date which has passed 5pm EST
+ */
+var getLatestIssue = function () {
+    var currentDate = new Date();
+    currentDate.setMilliseconds(0);
+    currentDate.setSeconds(0);
+    currentDate.setMinutes(0);
+    if (currentDate.getHours() < 17) {
+        currentDate.setTime(currentDate.getTime() - (24 * 60 * 60 * 1000));
+    }
+    currentDate.setHours(17);
+    return Math.floor(currentDate.getTime() / 1000);
+};
 var getUrlForIssue = function () {
+    var issueDate = getLatestIssue();
     return "".concat(leaderboardUrl, "?issue=").concat(issueDate);
 };
+/**
+ * fetches leaderboard data for a given issue
+ */
 function fetchLeaderboardData() {
     return __awaiter(this, void 0, void 0, function () {
-        var url, response, data, formattedData, dataElement, _a;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var url, response, e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    _b.trys.push([0, 3, , 4]);
-                    console.log('fuck');
+                    _a.trys.push([0, 2, , 3]);
                     url = getUrlForIssue();
                     return [4 /*yield*/, fetch(url)];
                 case 1:
-                    response = _b.sent();
-                    return [4 /*yield*/, response.json()];
+                    response = _a.sent();
+                    return [2 /*return*/, response.json()];
                 case 2:
-                    data = _b.sent();
-                    formattedData = data.map(function (resObj) {
-                        console.log(new Date(resObj['created_at']));
+                    e_1 = _a.sent();
+                    console.log("error fetching data");
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+;
+/*
+ * gets formatted leaderboard data and adds to DOM
+ */
+function getLeaderboardData() {
+    return __awaiter(this, void 0, void 0, function () {
+        var rawData, sortedData, formattedData, dataElement;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetchLeaderboardData()];
+                case 1:
+                    rawData = _a.sent();
+                    sortedData = rawData.sort(function (a, b) {
+                        return a.created_at - b.created_at;
+                    });
+                    formattedData = sortedData.map(function (resObj) {
                         return {
                             name: resObj['name'],
                             created_at: new Date(resObj['created_at'])
@@ -65,15 +102,9 @@ function fetchLeaderboardData() {
                     if (dataElement) {
                         dataElement.innerText = JSON.stringify(formattedData, null, 2);
                     }
-                    return [3 /*break*/, 4];
-                case 3:
-                    _a = _b.sent();
-                    console.log('error fetching data');
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
+                    return [2 /*return*/];
             }
         });
     });
 }
-;
-fetchLeaderboardData();
+getLeaderboardData();
