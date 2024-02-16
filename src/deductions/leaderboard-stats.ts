@@ -27,6 +27,7 @@ type DDResponse = {
   issue: number,
   created_at: number,
 }
+type LeaderData = Pick<DDResponse, 'name' | 'created_at'>
 
 /**
  * fetches leaderboard data for a given issue
@@ -54,11 +55,15 @@ async function getLeaderboardData() {
     return {
       name: resObj['name'],
       created_at: new Date(resObj['created_at'])
-    }
+    };
   });
   const dataElement = document.getElementById('data');
   if (dataElement) {
-    dataElement.innerText = JSON.stringify(formattedData, null, 2);
+    formattedData.forEach((obj: LeaderData) => {
+      const s = `${obj.name} completed at ${new Date(obj.created_at).toLocaleTimeString()}`
+      const newHtml = `<div>${s}</div>`;
+      dataElement.innerHTML += newHtml;
+    });
   }
 }
 

@@ -100,7 +100,11 @@ function getLeaderboardData() {
                     });
                     dataElement = document.getElementById('data');
                     if (dataElement) {
-                        dataElement.innerText = JSON.stringify(formattedData, null, 2);
+                        formattedData.forEach(function (obj) {
+                            var s = "".concat(obj.name, " completed at ").concat(new Date(obj.created_at).toLocaleTimeString(), "\n");
+                            var newHtml = "<div>".concat(s, "</div>");
+                            dataElement.innerHTML += newHtml;
+                        });
                     }
                     return [2 /*return*/];
             }
