@@ -1,0 +1,66 @@
+.vt323-regular {
+  font-family: "VT323", monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+body {
+  background: black;
+  color: white;
+  font-family: "vt323";
+}
+header h1 {
+  font-weight: 800;
+  font-size: 3rem;
+}
+header h4 {
+  font-size: 1.5rem;
+}
+.body-wrapper {
+  width: 70%;
+  margin: auto;
+  text-align: center;
+}
+.banner {
+  width: 100%;
+  height: auto;
+}
+.box {
+  width: 30rem;
+  height: 5rem;
+  background: #D5D5D5;
+  color: black;
+  padding: 1rem;
+  position: relative;
+  border-style: groove;
+}
+.box .title {
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+.box .close-button {
+  background-color: #E64E4E;
+  height: 2rem;
+  width: 2rem;
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 0.1rem;
+  border: 1px outset black;
+}
+.box .button {
+  border: 5px outset black;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  text-decoration: none;
+  color: black;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.box .button:hover {
+  border: 5px inset black;
+}
+
+
