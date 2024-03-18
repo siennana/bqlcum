@@ -43,10 +43,10 @@ var getLatestIssue = function () {
     currentDate.setMilliseconds(0);
     currentDate.setSeconds(0);
     currentDate.setMinutes(0);
-    if (currentDate.getHours() < 17) {
+    if (currentDate.getHours() < 18) {
         currentDate.setTime(currentDate.getTime() - (24 * 60 * 60 * 1000));
     }
-    currentDate.setHours(17);
+    currentDate.setHours(18);
     return Math.floor(currentDate.getTime() / 1000);
 };
 var getUrlForIssue = function () {
