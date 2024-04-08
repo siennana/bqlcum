@@ -11,7 +11,7 @@ const getLatestIssue = () => {
   if (currentDate.getHours() < 18) {
     currentDate.setTime(currentDate.getTime() - (24 * 60 * 60 * 1000));
   }
-  currentDate.setHours(18);
+  currentDate.setHours(17);
   return Math.floor(currentDate.getTime() / 1000);
 }
 
