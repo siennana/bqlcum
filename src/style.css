@@ -46,6 +46,7 @@ header h4 {
   padding: 1rem;
   position: relative;
   border-style: groove;
+  margin: 1rem;
 }
 .box .title {
   font-weight: 800;
@@ -75,6 +76,9 @@ header h4 {
 }
 .box .button:hover {
   border: 5px inset black;
+}
+.box .btn-container {
+  display: flex;
 }
 
 

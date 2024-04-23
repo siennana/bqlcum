@@ -1,9 +1,9 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const backButton = document.getElementById("backButton");
+document.addEventListener("DOMContentLoaded", function() {
 
-  if (backButton) {
-    backButton.addEventListener("click", function () {
-      window.location.href = "index.html";
-    });
-  }
+  console.log("test");
+  const ddPostButton = document.getElementById("ddPost");
+  ddPostButton.addEventListener("click", function(event) {
+    console.log("test");
+  });
 });
+
