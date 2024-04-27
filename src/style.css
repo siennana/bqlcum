@@ -80,5 +80,8 @@ header h4 {
 .box .btn-container {
   display: flex;
 }
-
+dialog::backdrop {
+  background-color: #000000;
+  opacity: 0.75;
+}
 
