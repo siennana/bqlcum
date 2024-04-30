@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es6",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "module": "es6"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

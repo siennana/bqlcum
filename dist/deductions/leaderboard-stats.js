@@ -1,4 +1,3 @@
-"use strict";
 const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
 /**
  * returns latest date which has passed 5pm EST
@@ -32,6 +31,22 @@ async function fetchLeaderboardData() {
     }
 }
 ;
+export async function postLeaderboardData(data) {
+    try {
+        const url = getUrlForIssue();
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(`{'flag': 'US', 'name': ${data}}`)
+        });
+        return response.json();
+    }
+    catch (e) {
+        console.log('error posting to leaderboard');
+    }
+}
 /*
  * gets formatted leaderboard data and adds to DOM
  */

@@ -42,6 +42,22 @@ async function fetchLeaderboardData() {
   }
 };
 
+export async function postLeaderboardData(data: string) {
+  try {
+    const url = getUrlForIssue();
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(`{'flag': 'US', 'name': ${data}}`)
+    });
+    return response.json();
+  } catch (e) {
+    console.log('error posting to leaderboard');
+  }
+}
+
 /*
  * gets formatted leaderboard data and adds to DOM
  */

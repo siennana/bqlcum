@@ -1,20 +1,26 @@
-"use strict";
+import { postLeaderboardData } from './deductions/leaderboard-stats.ts';
+const ddUrl = '';
+const DD_PSWD = 'titties';
 document.addEventListener("DOMContentLoaded", function () {
-    const backButton = document.getElementById("backButton");
-    let count = 0;
-    if (backButton) {
-        count++;
-        console.log(count);
-        backButton.addEventListener("click", function () {
-            window.location.href = "index.html";
-        });
-    }
     const ddPostButton = document.getElementById("ddPost");
-    if (ddPostButton) {
-        console.log("post button click");
-        const ddInput = document.getElementById("ddInput");
-        if (ddInput) {
-            console.log(ddInput.value);
-        }
-    }
+    const pswdModal = document.querySelector("dialog");
+    const ddInput = document.getElementById("ddInput");
+    const pswdButton = document.getElementById("pswdBtn");
+    const pswdCancel = document.getElementById("pswdCancel");
+    const pswdInput = document.getElementById("pswdInput");
+    ddPostButton.addEventListener("click", function (event) {
+        console.log(ddInput.value);
+        pswdModal.showModal();
+        pswdButton.addEventListener("click", function (event) {
+            console.log(pswdInput.value);
+            if (pswdInput.value === DD_PSWD) {
+                postLeaderboardData(ddInput.value);
+                console.log('match!');
+            }
+            pswdModal.close();
+        });
+        pswdCancel.addEventListener("click", function (event) {
+            pswdModal.close();
+        });
+    });
 });

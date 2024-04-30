@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,6 +35,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.postLeaderboardData = void 0;
 var leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
 /**
  * returns latest date which has passed 5pm EST
@@ -78,6 +81,34 @@ function fetchLeaderboardData() {
     });
 }
 ;
+function postLeaderboardData(data) {
+    return __awaiter(this, void 0, void 0, function () {
+        var url, response, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    url = getUrlForIssue();
+                    return [4 /*yield*/, fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify("{'flag': 'US', 'name': ".concat(data, "}"))
+                        })];
+                case 1:
+                    response = _a.sent();
+                    return [2 /*return*/, response.json()];
+                case 2:
+                    e_2 = _a.sent();
+                    console.log('error posting to leaderboard');
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.postLeaderboardData = postLeaderboardData;
 /*
  * gets formatted leaderboard data and adds to DOM
  */
@@ -101,7 +132,7 @@ function getLeaderboardData() {
                     dataElement = document.getElementById('data');
                     if (dataElement) {
                         formattedData.forEach(function (obj) {
-                            var s = "".concat(obj.name, " completed at ").concat(new Date(obj.created_at).toLocaleTimeString(), "\n");
+                            var s = "".concat(obj.name, " completed at ").concat(new Date(obj.created_at).toLocaleTimeString());
                             var newHtml = "<div>".concat(s, "</div>");
                             dataElement.innerHTML += newHtml;
                         });
