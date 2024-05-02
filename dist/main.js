@@ -1,4 +1,4 @@
-import { postLeaderboardData } from './deductions/leaderboard-stats.ts';
+import { postLeaderboardData } from './deductions/leaderboard-stats.js';
 const ddUrl = '';
 const DD_PSWD = 'titties';
 document.addEventListener("DOMContentLoaded", function () {
@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(pswdInput.value);
             if (pswdInput.value === DD_PSWD) {
                 postLeaderboardData(ddInput.value);
-                console.log('match!');
             }
             pswdModal.close();
         });
