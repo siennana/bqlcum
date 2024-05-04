@@ -7,7 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { User } from './leaderboard-users.js';
 const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
+const users = {};
 /**
  * returns latest date which has passed 5pm EST
  */
@@ -60,6 +62,43 @@ export function postLeaderboardData(data) {
         }
     });
 }
+const statusButtonClick = (id) => {
+    var _a;
+    const statusBtn = document.getElementById(id);
+    const parentId = ((_a = statusBtn === null || statusBtn === void 0 ? void 0 : statusBtn.parentNode) === null || _a === void 0 ? void 0 : _a.parentNode).id;
+    const btnData = id.split('_');
+    const user = users[parentId];
+    let txt = 0;
+    if (btnData[1] === 'like') {
+        user.likes++;
+        txt = user.likes;
+    }
+    else if (btnData[1] === 'dislike') {
+        user.dislikes++;
+        txt = user.dislikes;
+    }
+    if (statusBtn instanceof HTMLButtonElement) {
+        //statusBtn!.textContent = `${txt}`;
+        statusBtn.removeChild(statusBtn.lastChild);
+        statusBtn.appendChild(document.createTextNode(`${txt}`));
+    }
+};
+const createButton = (id, val) => {
+    const button = document.createElement("button");
+    const btnData = id.split('_');
+    const img = document.createElement("img");
+    if (btnData[1] === 'like') {
+        img.src = './../assets/noun-love-6212830.png';
+    }
+    else if (btnData[1] === 'dislike') {
+        img.src = './../assets/noun-middle-finger-241675.png';
+    }
+    button.id = id;
+    button.onclick = () => statusButtonClick(button.id);
+    button.appendChild(img);
+    button.appendChild(document.createTextNode(`${val}`));
+    return button;
+};
 /*
  * gets formatted leaderboard data and adds to DOM
  */
@@ -78,10 +117,17 @@ function getLeaderboardData() {
         });
         const dataElement = document.getElementById('data');
         if (dataElement) {
-            formattedData.forEach((obj) => {
+            formattedData.forEach((obj, i) => {
                 const s = `${obj.name} completed at ${new Date(obj.created_at).toLocaleTimeString()}`;
-                const newHtml = `<div>${s}</div>`;
-                dataElement.innerHTML += newHtml;
+                const newDiv = document.createElement("div");
+                newDiv.id = `${i}`;
+                newDiv.textContent = s;
+                const btnDiv = document.createElement('div');
+                btnDiv.appendChild(createButton(`${i}_like`, 0));
+                btnDiv.appendChild(createButton(`${i}_dislike`, 0));
+                newDiv.appendChild(btnDiv);
+                dataElement.appendChild(newDiv);
+                users[newDiv.id] = new User(0, 0);
             });
         }
     });
