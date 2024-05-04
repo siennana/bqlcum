@@ -118,7 +118,22 @@ async function getLeaderboardData() {
   const dataElement = document.getElementById('data');
   if (dataElement) {
     formattedData.forEach((obj: LeaderData, i: number) => {
-      const s = `${obj.name} completed at ${new Date(obj.created_at).toLocaleTimeString()}`
+      let ext = '';
+      switch (obj.name) {
+        case 'BCQ':
+          ext = '8==D~~~';
+        case 'ABF':
+          ext = 'ಠ__ಠ';
+        case 'SKB':
+          ext = '(-_-)';
+        case 'TLM':
+          ext = '(/◕ヮ◕)/';
+        case 'LBB':
+          ext = 'ᕕ( ᐛ )ᕗ ';
+        case 'TRI':
+          ext = '(╯°□°）╯︵ ┻━┻';
+      }
+      const s = `${i + 1}. ${obj.name} completed at ${new Date(obj.created_at).toLocaleTimeString()} ${ext}`;
       const newDiv = document.createElement("div");
       newDiv.id=`${i}`;
       newDiv.textContent = s;
