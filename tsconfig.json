@@ -4,12 +4,16 @@
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "target": "es6",
-    "module": "es6",
+    "module": "esnext",
     "lib": [
         "DOM",
         "ES5",
         "ES2015"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
     ]
   },
   "include": ["src/**/*.ts"],

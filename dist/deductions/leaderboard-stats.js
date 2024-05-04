@@ -78,9 +78,11 @@ const statusButtonClick = (id) => {
         txt = user.dislikes;
     }
     if (statusBtn instanceof HTMLButtonElement) {
-        //statusBtn!.textContent = `${txt}`;
-        statusBtn.removeChild(statusBtn.lastChild);
-        statusBtn.appendChild(document.createTextNode(`${txt}`));
+        if (statusBtn.lastChild) {
+            statusBtn.removeChild(statusBtn.lastChild);
+            statusBtn.appendChild(document.createTextNode(`${txt}`));
+        }
+        const stats = JSON.stringify(users, null, 2);
     }
 };
 const createButton = (id, val) => {

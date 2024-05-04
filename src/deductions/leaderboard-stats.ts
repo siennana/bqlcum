@@ -1,4 +1,4 @@
-import { User } from './leaderboard-users.js'; 
+import { User } from './leaderboard-users.js';
 
 const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
 const users: Record<string, User> = {};
@@ -75,9 +75,12 @@ const statusButtonClick = (id: string) => {
     txt = user.dislikes;
   }
   if (statusBtn instanceof HTMLButtonElement) {
-    //statusBtn!.textContent = `${txt}`;
-    statusBtn.removeChild(statusBtn.lastChild);
-    statusBtn.appendChild(document.createTextNode(`${txt}`));
+    if (statusBtn.lastChild) {
+      statusBtn.removeChild(statusBtn.lastChild);
+      statusBtn.appendChild(document.createTextNode(`${txt}`));
+    }
+
+    const stats = JSON.stringify(users, null, 2);
   }
 }
 

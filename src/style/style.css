@@ -16,6 +16,10 @@ header h1 {
 header h4 {
   font-size: 1.5rem;
 }
+header h4 span {
+  color: #ff3ff0;
+  font-weight: 800;
+}
 header img {
   width: 100%;
 }
