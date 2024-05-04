@@ -97,7 +97,7 @@ dialog::backdrop {
     height: 5rem;
   }
   .left-margin-wrapper, .right-margin-wrapper {
-    visibility: collapse;
+    display: none;
   }
   .body-wrapper {
     width: 100%;
