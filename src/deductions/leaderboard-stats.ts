@@ -136,7 +136,7 @@ async function getLeaderboardData() {
           ext = '(/◕ヮ◕)/';
           break;
         }
-        case 'LBB': {
+        case 'LLB': {
           ext = 'ᕕ( ᐛ )ᕗ ';
           break;
         }
