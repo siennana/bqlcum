@@ -120,18 +120,30 @@ async function getLeaderboardData() {
     formattedData.forEach((obj: LeaderData, i: number) => {
       let ext = '';
       switch (obj.name) {
-        case 'BCQ':
+        case 'BCQ': {
           ext = '8==D~~~';
-        case 'ABF':
+          break;
+        }
+        case 'ABF': {
           ext = 'ಠ__ಠ';
-        case 'SKB':
+          break;
+        }
+        case 'SKB': {
           ext = '(-_-)';
-        case 'TLM':
+          break;
+        }
+        case 'TLM': {
           ext = '(/◕ヮ◕)/';
-        case 'LBB':
+          break;
+        }
+        case 'LBB': {
           ext = 'ᕕ( ᐛ )ᕗ ';
-        case 'TRI':
+          break;
+        }
+        case 'TRI': {
           ext = '(╯°□°）╯︵ ┻━┻';
+          break;
+        }
       }
       const s = `${i + 1}. ${obj.name} completed at ${new Date(obj.created_at).toLocaleTimeString()} ${ext}`;
       const newDiv = document.createElement("div");
