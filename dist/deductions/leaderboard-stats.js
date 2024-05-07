@@ -151,10 +151,10 @@ function getLeaderboardData() {
                 const newDiv = document.createElement("div");
                 newDiv.id = `${i}`;
                 newDiv.textContent = s;
-                const btnDiv = document.createElement('div');
-                btnDiv.appendChild(createButton(`${i}_like`, 0));
-                btnDiv.appendChild(createButton(`${i}_dislike`, 0));
-                newDiv.appendChild(btnDiv);
+                //const btnDiv = document.createElement('div');
+                //btnDiv.appendChild(createButton(`${i}_like`, 0));
+                //btnDiv.appendChild(createButton(`${i}_dislike`, 0));
+                //newDiv.appendChild(btnDiv);
                 dataElement.appendChild(newDiv);
                 users[newDiv.id] = new User(0, 0);
             });
