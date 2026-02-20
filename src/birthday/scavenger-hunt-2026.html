@@ -65,8 +65,33 @@
                     </div>
                         <div class="default">Locked — complete Phase 2</div>
                         <div class="body">
-                            <span>Insert challenge here</span>
-                            <button class="button" id="challenge3Btn">Complete</button>
+                            <div class="matchup">
+                                <div class="match-row top-row">
+                                    <span>Team #1 </span>
+                                    <input class="textbox challenge3-input" type="text" id="c3-0" readonly value="Ben">
+                                    <input class="textbox challenge3-input" type="text" id="c3-1">
+                                </div>
+                                <div class="match-row vs-row">
+                                    <span class="vs">vs</span>
+                                </div>
+                                <div class="match-row bottom-row">
+                                    <span>Team #2 </span>
+                                    <input class="textbox challenge3-input" type="text" id="c3-2">
+                                    <input class="textbox challenge3-input" type="text" id="c3-3">
+                                </div>
+                            </div>
+                            <div class="match-rules">
+                                <div class="rule-row">
+                                    <label>Team #1 rule: <input class="textbox rule-input" type="text" id="c3-rule-1" readonly style="min-width:15rem"></label>
+                                </div>
+                                <div class="rule-row">
+                                    <label>Team #2 rule: <input class="textbox rule-input" type="text" id="c3-rule-2" readonly style="min-width:15rem"></label>
+                                </div>
+                            </div>
+                            <div class="match-controls">
+                                <button class="button" id="challenge3RandomBtn">Randomize</button>
+                                <button class="button" id="challenge3Btn">Complete</button>
+                            </div>
                         </div>
                 </div>
             </div>

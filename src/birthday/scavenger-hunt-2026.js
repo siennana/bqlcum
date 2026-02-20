@@ -118,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const body = c3.querySelector('.body');
         if (def) def.style.display = 'none';
         if (body) body.style.display = 'flex';
+        // clear any existing values in the C3 inputs (except Ben)
+        c3Inputs.forEach((inp, idx) => { if (idx > 0) inp.value = ''; });
       }
     });
   }
@@ -133,4 +135,59 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // Challenge 3: randomize names into the four textboxes (first textbox fixed to Ben)
+  const names = ['srinath','sienna','jasmine','alex','koushik','brad','uri','eli', 'Andrew'];
+  const rules = ['shoot every shot behind the back', 'shoot every shot with a bridge', 'cannot play with a regular pool stick'];
+  const c3Inputs = [
+    document.getElementById('c3-0'),
+    document.getElementById('c3-1'),
+    document.getElementById('c3-2'),
+    document.getElementById('c3-3')
+  ].filter(Boolean);
+  const c3Rule1 = document.getElementById('c3-rule-1');
+  const c3Rule2 = document.getElementById('c3-rule-2');
+
+  // ensure first box is Ben and readonly
+  if (c3Inputs[0]) {
+    c3Inputs[0].value = 'Ben';
+    c3Inputs[0].readOnly = true;
+  }
+  // ensure other C3 boxes are blank until randomized
+  for (let i = 1; i < c3Inputs.length; i++) {
+    if (c3Inputs[i]) c3Inputs[i].value = '';
+  }
+
+  const randomBtn = document.getElementById('challenge3RandomBtn');
+  function shuffleArray(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+  }
+
+  if (randomBtn) {
+    randomBtn.addEventListener('click', () => {
+      // pick unique names for inputs 1..3
+      const pool = names.slice();
+      shuffleArray(pool);
+      // take first 3 names
+      const picks = pool.slice(0, 3);
+      // assign to c3-1, c3-2, c3-3
+      for (let i = 1; i < c3Inputs.length; i++) {
+        if (c3Inputs[i]) {
+          c3Inputs[i].value = picks[i - 1] || '';
+        }
+      }
+      // randomize rules (no duplicates) into rule boxes
+      const rulePool = rules.slice();
+      shuffleArray(rulePool);
+      if (c3Rule1) c3Rule1.value = rulePool[0] || '';
+      if (c3Rule2) c3Rule2.value = rulePool[1] || '';
+    });
+  }
+
+  // ensure rule boxes are blank until randomized
+  if (c3Rule1) c3Rule1.value = '';
+  if (c3Rule2) c3Rule2.value = '';
 });
