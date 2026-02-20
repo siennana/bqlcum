@@ -50,7 +50,11 @@
             <div class="close-button"></div>
           </div>
           <div class="body">
-            <a class="button" href="./src/birthday/scavenger-hunt-2026.html">Enter</a>
+            <div class="input-wrapper">
+              <span>Password: </span>
+              <input class="textbox" type="password" id="pass1Text">
+              <button class="button" id="pass1Btn">Enter</button>
+            </div>
           </div>
         </div>
       </div>
@@ -64,4 +68,17 @@
       </div>
     </div>
     <script src="./dist/main.js" type="module"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const passInput = document.getElementById('pass1Text');
+        const passBtn = document.getElementById('pass1Btn');
+        if (passBtn && passInput) {
+          passBtn.addEventListener('click', function() {
+            if (passInput.value.trim().toLowerCase() === 'titties') {
+              window.open('./src/birthday/scavenger-hunt-2026.html', '_blank', 'noopener');
+            }
+          });
+        }
+      });
+    </script>
   </body>

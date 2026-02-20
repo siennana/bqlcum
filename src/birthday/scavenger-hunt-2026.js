@@ -1,15 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const input = document.getElementById('pass1Text');
-  const btn = document.getElementById('pass1Btn');
-  if (btn && input) {
-    btn.addEventListener('click', function() {
-      if (input.value.trim().toLowerCase() === 'titties') {
-        window.open('https://siennacodes.com', '_blank');
-      }
-    });
-  }
-
-  // Phase 2: single-char passcode inputs (use masked display to avoid password managers)
+  // Phase 2: single-char passcode inputs
   const pass2Inputs = Array.from(document.querySelectorAll('.pass2-input'));
   const pass2Btn = document.getElementById('pass2Btn');
   const correct = ['s','h','i','n','e'];
@@ -93,14 +83,54 @@ document.addEventListener('DOMContentLoaded', function() {
       i.classList.add('correct');
       i.disabled = true;
     });
-    // reveal challenge bodies: hide .default and show .body inside each challenge box
-    const challengeBoxes = document.querySelectorAll('.challenges .box');
-    challengeBoxes.forEach(box => {
-      const def = box.querySelector('.default');
-      const body = box.querySelector('.body');
+    // reveal only Challenge 1 body; leave others locked
+    const c1 = document.querySelector('.challenge-1');
+    if (c1) {
+      const def = c1.querySelector('.default');
+      const body = c1.querySelector('.body');
       if (def) def.style.display = 'none';
       if (body) body.style.display = 'flex';
-    });
+    }
     console.log('Passcode correct — inputs locked, highlighted, and challenges revealed');
+  }
+
+  // When Challenge 1 is completed, reveal Challenge 2
+  const challenge1Btn = document.getElementById('challenge1Btn');
+  if (challenge1Btn) {
+    challenge1Btn.addEventListener('click', () => {
+      const c2 = document.querySelector('.challenge-2');
+      if (c2) {
+        const def = c2.querySelector('.default');
+        const body = c2.querySelector('.body');
+        if (def) def.style.display = 'none';
+        if (body) body.style.display = 'flex';
+      }
+    });
+  }
+
+  // When Challenge 2 is completed, reveal Challenge 3
+  const challenge2Btn = document.getElementById('challenge2Btn');
+  if (challenge2Btn) {
+    challenge2Btn.addEventListener('click', () => {
+      const c3 = document.querySelector('.challenge-3');
+      if (c3) {
+        const def = c3.querySelector('.default');
+        const body = c3.querySelector('.body');
+        if (def) def.style.display = 'none';
+        if (body) body.style.display = 'flex';
+      }
+    });
+  }
+
+  // When Challenge 3 is completed, show final dialog
+  const challenge3Btn = document.getElementById('challenge3Btn');
+  if (challenge3Btn) {
+    challenge3Btn.addEventListener('click', () => {
+      try {
+        alert('Final Clue: call Willie');
+      } catch (e) {
+        console.log('Final Clue: call Willie');
+      }
+    });
   }
 });
