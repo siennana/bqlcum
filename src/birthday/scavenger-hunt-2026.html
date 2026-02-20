@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ben Quick 2026 Birthday Scavenger Hunt</title>
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/scavenger-hunt-2026.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="main-wrapper">
+        <div class="body-wrapper">
+            <header>
+                <h1 id="main-header">Welcome to Ben Quick 2026 Scavenger Hunt</h1>
+            </header>
+            <input type="text" id="secretBox" placeholder="Enter password...">
+        </div>
+    </div>
+    <script>
+      document.getElementById('secretBox').addEventListener('input', function(e) {
+        if (e.target.value.toLowerCase() === 'titties') {
+          window.location.href = 'https://siennacodes.com';
+        }
+      });
+    </script>
+  </body>
+</html>
