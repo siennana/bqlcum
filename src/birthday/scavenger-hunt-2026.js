@@ -70,23 +70,37 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   function checkPass2() {
-    const val = pass2Inputs.map(i => (i.dataset.real || '').toLowerCase()).join('');
+    const val = pass2Inputs.map(i => (i.value || '').toLowerCase()).join('');
+    console.log(val);
     return val === correct.join('');
   }
 
   if (pass2Btn) {
     pass2Btn.addEventListener('click', function() {
       if (checkPass2()) {
+        console.log('Passcode correct');
         doPass2Action();
       } else {
-        pass2Inputs.forEach(i => { i.dataset.real = ''; i.value = ''; });
+        pass2Inputs.forEach(i => { i.value = ''; });
         pass2Inputs[0] && pass2Inputs[0].focus();
       }
     });
   }
 
   function doPass2Action() {
-    // TODO: implement action when correct passcode ('s h i n e') is entered
-    console.log('Passcode correct — implement action here');
+    // mark inputs as correct: keep characters and highlight
+    pass2Inputs.forEach(i => {
+      i.classList.add('correct');
+      i.disabled = true;
+    });
+    // reveal challenge bodies: hide .default and show .body inside each challenge box
+    const challengeBoxes = document.querySelectorAll('.challenges .box');
+    challengeBoxes.forEach(box => {
+      const def = box.querySelector('.default');
+      const body = box.querySelector('.body');
+      if (def) def.style.display = 'none';
+      if (body) body.style.display = 'flex';
+    });
+    console.log('Passcode correct — inputs locked, highlighted, and challenges revealed');
   }
 });

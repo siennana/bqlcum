@@ -41,7 +41,8 @@ async function fetchLeaderboardData() {
     const response = await fetch(url);
     return response.json();
  } catch (e){
-    console.log(`error fetching data`);
+    console.log(`error fetching data`, e);
+    return [];
   }
 };
 
@@ -105,6 +106,10 @@ const createButton = (id: string, val: number) => {
  */
 async function getLeaderboardData() {
   const rawData = await fetchLeaderboardData();
+  if (!rawData || !Array.isArray(rawData)) {
+    console.log('no leaderboard data available');
+    return;
+  }
   // sort by created_by date
   const sortedData = rawData.sort((a: DDResponse, b: DDResponse) => {
     return a.created_at - b.created_at;
