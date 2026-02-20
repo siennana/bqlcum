@@ -48,10 +48,9 @@ header img {
   height: auto;
 }
 .box {
-  height: 5rem;
   background: #D5D5D5;
   color: black;
-  padding: 1rem;
+  padding: 0.5rem 1rem 1.5rem 1rem;
   position: relative;
   border-style: groove;
   margin: 1rem;
@@ -74,7 +73,7 @@ header img {
 }
 .box .button {
   border: 5px outset black;
-  padding: 0.5rem;
+  padding: 1px 10px 1px 10px;
   text-decoration: none;
   color: black;
 }
@@ -83,6 +82,36 @@ header img {
 }
 .box .btn-container {
   display: flex;
+}
+.box .body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* single-character passcode inputs */
+.pass2-input {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 1.25rem;
+  line-height: 2rem;
+  box-sizing: border-box;
+}
+
+/* ensure pass2 inputs use page font and uppercase */
+.pass2-input {
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+/* make the phase1 password input use the page font */
+#pass1Text {
+  font-family: inherit;
+}
+.box .textbox {
+  border: 3px inset black;
 }
 dialog::backdrop {
   background-color: #000000;

@@ -16,15 +16,30 @@
             <header>
                 <h1 id="main-header">Welcome to Ben Quick 2026 Scavenger Hunt</h1>
             </header>
-            <input type="text" id="secretBox" placeholder="Enter password...">
+            <div class="box">
+                <div class="title">Phase 1 Password</div>
+                <div class="close-button"></div>
+                <div class="body" style="display: flex; gap: 0.5rem;">
+                    <span>Password: </span>
+                    <span><input class="textbox" type="password" id="pass1Text"></span>
+                    <button class="button" id="pass1Btn">Enter</button>
+                </div>
+            </div>
+            <div class="box">
+              <div class="title">Phase 2 Passcode</div>
+              <div class="close-button"></div>
+              <div class="body" style="display: flex; gap: 0.5rem; align-items: center;">
+                <span>Passcode: </span>
+                    <span><input class="textbox pass2-input" inputmode="text" type="text" maxlength="1" id="pass2-0" data-real="" autocomplete="off"></span>
+                    <span><input class="textbox pass2-input" inputmode="text" type="text" maxlength="1" id="pass2-1" data-real="" autocomplete="off"></span>
+                    <span><input class="textbox pass2-input" inputmode="text" type="text" maxlength="1" id="pass2-2" data-real="" autocomplete="off"></span>
+                    <span><input class="textbox pass2-input" inputmode="text" type="text" maxlength="1" id="pass2-3" data-real="" autocomplete="off"></span>
+                    <span><input class="textbox pass2-input" inputmode="text" type="text" maxlength="1" id="pass2-4" data-real="" autocomplete="off"></span>
+                <button class="button" id="pass2Btn">Enter</button>
+              </div>
+            </div>
         </div>
     </div>
-    <script>
-      document.getElementById('secretBox').addEventListener('input', function(e) {
-        if (e.target.value.toLowerCase() === 'titties') {
-          window.location.href = 'https://siennacodes.com';
-        }
-      });
-    </script>
+    <script src="./scavenger-hunt-2026.js" defer></script>
   </body>
 </html>
