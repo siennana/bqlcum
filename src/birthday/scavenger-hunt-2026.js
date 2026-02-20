@@ -124,6 +124,48 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Challenge 2 timer: start button and countdown (with milliseconds)
+  const challenge2StartBtn = document.getElementById('challenge2StartBtn');
+  const challenge2TimerEl = document.getElementById('challenge2Timer');
+  let challenge2Interval = null;
+  // milliseconds remaining (5 minutes = 300000 ms)
+  let challenge2RemainingMs = 300000;
+
+  function formatTimeMs(ms) {
+    if (ms <= 0) return '00:00.00';
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const centis = Math.floor((ms % 1000) / 10); // two-digit centiseconds
+    const m = minutes.toString().padStart(2, '0');
+    const s = seconds.toString().padStart(2, '0');
+    const c = centis.toString().padStart(2, '0');
+    return `${m}:${s}.${c}`;
+  }
+
+  // initialize display
+  if (challenge2TimerEl) challenge2TimerEl.textContent = formatTimeMs(challenge2RemainingMs);
+
+  if (challenge2StartBtn) {
+    challenge2StartBtn.addEventListener('click', () => {
+      if (challenge2Interval) return; // already running
+      // reset and start
+      challenge2RemainingMs = 300000;
+      if (challenge2TimerEl) challenge2TimerEl.textContent = formatTimeMs(challenge2RemainingMs);
+      challenge2StartBtn.disabled = true;
+      challenge2Interval = setInterval(() => {
+        challenge2RemainingMs -= 100; // decrement by 100ms
+        if (challenge2RemainingMs <= 0) {
+          clearInterval(challenge2Interval);
+          challenge2Interval = null;
+          if (challenge2TimerEl) challenge2TimerEl.textContent = 'times up!';
+          challenge2StartBtn.disabled = false;
+          return;
+        }
+        if (challenge2TimerEl) challenge2TimerEl.textContent = formatTimeMs(challenge2RemainingMs);
+      }, 100);
+    });
+  }
+
   // When Challenge 3 is completed, show final dialog
   const challenge3Btn = document.getElementById('challenge3Btn');
   if (challenge3Btn) {
