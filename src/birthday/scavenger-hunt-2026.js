@@ -166,14 +166,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // When Challenge 3 is completed, show final dialog
+  // When Challenge 3 is completed, reveal Challenge 4
   const challenge3Btn = document.getElementById('challenge3Btn');
   if (challenge3Btn) {
     challenge3Btn.addEventListener('click', () => {
+      const c4 = document.querySelector('.challenge-4');
+      if (c4) {
+        const def = c4.querySelector('.default');
+        const body = c4.querySelector('.body');
+        if (def) def.style.display = 'none';
+        if (body) body.style.display = 'flex';
+      }
+    });
+  }
+
+  // When Challenge 4 is completed, show final dialog
+  const challenge4Btn = document.getElementById('challenge4Btn');
+  if (challenge4Btn) {
+    challenge4Btn.addEventListener('click', () => {
       try {
-        alert('Final Clue: call Willie');
+        alert('Call Willie');
       } catch (e) {
-        console.log('Final Clue: call Willie');
+        console.log('Call Willie');
       }
     });
   }
