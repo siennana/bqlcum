@@ -3,20 +3,30 @@ import { User } from './leaderboard-users.js';
 const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
 const users: Record<string, User> = {};
 
+/**
+ * 
+ * @returns 5pm fixed EST (UTC-5)
+ */
 const getLatestIssue = (): number => {
+  const FIXED_EST_OFFSET_HOURS = -5;
   const now = new Date();
 
-  const nyNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "America/New_York" })
-  );
+  // Shift current UTC time into fixed EST wall-clock time
+  const estNowMs = now.getTime() + FIXED_EST_OFFSET_HOURS * 60 * 60 * 1000;
+  const estNow = new Date(estNowMs);
 
-  if (nyNow.getHours() < 17) {
-    nyNow.setDate(nyNow.getDate() - 1);
-  }
+  const year = estNow.getUTCFullYear();
+  const month = estNow.getUTCMonth();
+  const day = estNow.getUTCDate();
+  const hour = estNow.getUTCHours();
 
-  nyNow.setHours(17, 0, 0, 0);
+  // Before 5 PM fixed EST, use previous day
+  const issueDay = hour < 17 ? day - 1 : day;
 
-  return Math.floor(nyNow.getTime() / 1000);
+  // 5:00 PM EST = 22:00 UTC, always
+  const issueUtcMs = Date.UTC(year, month, issueDay, 22, 0, 0, 0);
+
+  return Math.floor(issueUtcMs / 1000);
 };
 
 const getUrlForIssue = () => {
@@ -43,7 +53,6 @@ type LeaderData = {
 async function fetchLeaderboardData() {
   try {
     const url = getUrlForIssue();
-    console.log(url);
     const response = await fetch(url);
     return response.json();
  } catch (e){
