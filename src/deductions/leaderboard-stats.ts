@@ -3,87 +3,21 @@ import { User } from './leaderboard-users.js';
 const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
 const users: Record<string, User> = {};
 
-/**
- * returns latest date which has passed 5pm EST
- */
-function getLatestIssue(): number {
+const getLatestIssue = (): number => {
   const now = new Date();
 
-  // Read the current wall-clock time in New York
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    hour12: false,
-  });
+  const nyNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "America/New_York" })
+  );
 
-  const parts = formatter.formatToParts(now);
-  const get = (type: string) =>
-    parts.find((p) => p.type === type)?.value ?? "";
-
-  let year = Number(get("year"));
-  let month = Number(get("month"));
-  let day = Number(get("day"));
-  const hour = Number(get("hour"));
-
-  // Before 6 PM NY time, use the previous day's issue
-  if (hour < 18) {
-    const nyMidnightUtc = new Date(Date.UTC(year, month - 1, day));
-    nyMidnightUtc.setUTCDate(nyMidnightUtc.getUTCDate() - 1);
-
-    year = nyMidnightUtc.getUTCFullYear();
-    month = nyMidnightUtc.getUTCMonth() + 1;
-    day = nyMidnightUtc.getUTCDate();
+  if (nyNow.getHours() < 17) {
+    nyNow.setDate(nyNow.getDate() - 1);
   }
 
-  // Build 5:00 PM in New York for that date, accounting for DST automatically
-  return getZonedTimestamp(year, month, day, 17, 0, 0, "America/New_York");
-}
+  nyNow.setHours(17, 0, 0, 0);
 
-function getZonedTimestamp(
-  year: number,
-  month: number,
-  day: number,
-  hour: number,
-  minute: number,
-  second: number,
-  timeZone: string
-): number {
-  // Start with the naive UTC time for those components
-  const utcGuess = Date.UTC(year, month - 1, day, hour, minute, second);
-
-  // Figure out what offset the target timezone has at that instant
-  const dtf = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    timeZoneName: "shortOffset",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-
-  const parts = dtf.formatToParts(new Date(utcGuess));
-  const tzName = parts.find((p) => p.type === "timeZoneName")?.value ?? "GMT-5";
-
-  // Examples: GMT-5, GMT-4
-  const match = tzName.match(/^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/);
-  if (!match) {
-    throw new Error(`Could not parse timezone offset: ${tzName}`);
-  }
-
-  const sign = match[1] === "+" ? 1 : -1;
-  const offsetHours = Number(match[2]);
-  const offsetMinutes = Number(match[3] ?? "0");
-  const totalOffsetMinutes = sign * (offsetHours * 60 + offsetMinutes);
-
-  // Convert "5 PM in New York" into UTC timestamp
-  return Math.floor((utcGuess - totalOffsetMinutes * 60_000) / 1000);
-}
+  return Math.floor(nyNow.getTime() / 1000);
+};
 
 const getUrlForIssue = () => {
   const issueDate = getLatestIssue();
