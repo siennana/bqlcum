@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const pswdButton = document.getElementById("pswdBtn");
     const pswdCancel = document.getElementById("pswdCancel");
     const pswdInput = document.getElementById("pswdInput");
+    const bday2026Box = document.getElementById("bday2026Box");
     ddPostButton.addEventListener("click", function (event) {
         console.log(ddInput.value);
         pswdModal.showModal();

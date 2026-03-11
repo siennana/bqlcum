@@ -3,6 +3,7 @@
     "fs": "^0.0.1-security"
   },
   "devDependencies": {
-    "@types/node": "^20.12.8"
+    "@types/node": "^25.4.0",
+    "typescript": "^5.9.3"
   }
 }

@@ -13,19 +13,67 @@ const users = {};
 /**
  * returns latest date which has passed 5pm EST
  */
-const getLatestIssue = () => {
-    const currentDate = new Date();
-    currentDate.setMilliseconds(0);
-    currentDate.setSeconds(0);
-    currentDate.setMinutes(0);
-    if (currentDate.getHours() < 18) {
-        currentDate.setTime(currentDate.getTime() - (24 * 60 * 60 * 1000));
+function getLatestIssue() {
+    const now = new Date();
+    // Read the current wall-clock time in New York
+    const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        hour12: false,
+    });
+    const parts = formatter.formatToParts(now);
+    const get = (type) => { var _a, _b; return (_b = (_a = parts.find((p) => p.type === type)) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : ""; };
+    let year = Number(get("year"));
+    let month = Number(get("month"));
+    let day = Number(get("day"));
+    const hour = Number(get("hour"));
+    // Before 6 PM NY time, use the previous day's issue
+    if (hour < 18) {
+        const nyMidnightUtc = new Date(Date.UTC(year, month - 1, day));
+        nyMidnightUtc.setUTCDate(nyMidnightUtc.getUTCDate() - 1);
+        year = nyMidnightUtc.getUTCFullYear();
+        month = nyMidnightUtc.getUTCMonth() + 1;
+        day = nyMidnightUtc.getUTCDate();
     }
-    currentDate.setHours(17);
-    return Math.floor(currentDate.getTime() / 1000);
-};
+    // Build 5:00 PM in New York for that date, accounting for DST automatically
+    return getZonedTimestamp(year, month, day, 17, 0, 0, "America/New_York");
+}
+function getZonedTimestamp(year, month, day, hour, minute, second, timeZone) {
+    var _a, _b, _c;
+    // Start with the naive UTC time for those components
+    const utcGuess = Date.UTC(year, month - 1, day, hour, minute, second);
+    // Figure out what offset the target timezone has at that instant
+    const dtf = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        timeZoneName: "shortOffset",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    });
+    const parts = dtf.formatToParts(new Date(utcGuess));
+    const tzName = (_b = (_a = parts.find((p) => p.type === "timeZoneName")) === null || _a === void 0 ? void 0 : _a.value) !== null && _b !== void 0 ? _b : "GMT-5";
+    // Examples: GMT-5, GMT-4
+    const match = tzName.match(/^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/);
+    if (!match) {
+        throw new Error(`Could not parse timezone offset: ${tzName}`);
+    }
+    const sign = match[1] === "+" ? 1 : -1;
+    const offsetHours = Number(match[2]);
+    const offsetMinutes = Number((_c = match[3]) !== null && _c !== void 0 ? _c : "0");
+    const totalOffsetMinutes = sign * (offsetHours * 60 + offsetMinutes);
+    // Convert "5 PM in New York" into UTC timestamp
+    return Math.floor((utcGuess - totalOffsetMinutes * 60000) / 1000);
+}
 const getUrlForIssue = () => {
     const issueDate = getLatestIssue();
+    console.log(issueDate);
     return `${leaderboardUrl}?issue=${issueDate}`;
 };
 /**
@@ -35,11 +83,13 @@ function fetchLeaderboardData() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const url = getUrlForIssue();
+            console.log(url);
             const response = yield fetch(url);
             return response.json();
         }
         catch (e) {
-            console.log(`error fetching data`);
+            console.log(`error fetching data`, e);
+            return [];
         }
     });
 }
@@ -107,6 +157,10 @@ const createButton = (id, val) => {
 function getLeaderboardData() {
     return __awaiter(this, void 0, void 0, function* () {
         const rawData = yield fetchLeaderboardData();
+        if (!rawData || !Array.isArray(rawData)) {
+            console.log('no leaderboard data available');
+            return;
+        }
         // sort by created_by date
         const sortedData = rawData.sort((a, b) => {
             return a.created_at - b.created_at;
