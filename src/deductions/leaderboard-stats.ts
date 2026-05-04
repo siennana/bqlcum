@@ -4,18 +4,40 @@ const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.co
 const users: Record<string, User> = {};
 
 /**
- * returns latest date which has passed 5pm EST
+ * returns latest 5pm America/New_York that the current moment has passed,
+ * as Unix seconds. Independent of the host's local timezone.
  */
 const getLatestIssue = () => {
-  const currentDate = new Date();
-  currentDate.setMilliseconds(0);
-  currentDate.setSeconds(0);
-  currentDate.setMinutes(0);
-  if (currentDate.getHours() < 18) {
-    currentDate.setTime(currentDate.getTime() - (24 * 60 * 60 * 1000));
+  const now = new Date();
+  const nyParts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false,
+    }).formatToParts(now).map(p => [p.type, p.value])
+  );
+  let y = Number(nyParts.year);
+  let m = Number(nyParts.month);
+  let d = Number(nyParts.day);
+  // hour is "00".."23" with hour12:false (Intl returns "24" in some engines for midnight; normalize)
+  const nyHour = Number(nyParts.hour) % 24;
+
+  // Original behavior: roll back a day if NY hour hasn't reached 18.
+  if (nyHour < 18) {
+    const prev = new Date(Date.UTC(y, m - 1, d) - 24 * 60 * 60 * 1000);
+    y = prev.getUTCFullYear();
+    m = prev.getUTCMonth() + 1;
+    d = prev.getUTCDate();
   }
-  currentDate.setHours(17);
-  return Math.floor(currentDate.getTime() / 1000);
+
+  // Find the UTC instant for 17:00 on (y,m,d) America/New_York. DST-correct.
+  const guess = new Date(Date.UTC(y, m - 1, d, 17, 0, 0));
+  const guessNyHour = Number(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York', hour: '2-digit', hour12: false,
+    }).formatToParts(guess).find(p => p.type === 'hour')!.value
+  ) % 24;
+  const target = new Date(guess.getTime() + (17 - guessNyHour) * 60 * 60 * 1000);
+  return Math.floor(target.getTime() / 1000);
 }
 
 const getUrlForIssue = () => {
@@ -30,8 +52,6 @@ type DDResponse = {
   issue: number,
   created_at: number,
 }
-type LeaderData = Pick<DDResponse, 'name' | 'created_at'>
-
 /**
  * fetches leaderboard data for a given issue
  */
@@ -122,7 +142,7 @@ async function getLeaderboardData() {
   });
   const dataElement = document.getElementById('data');
   if (dataElement) {
-    formattedData.forEach((obj: LeaderData, i: number) => {
+    formattedData.forEach((obj, i) => {
       let ext = '';
       switch (obj.name) {
         case 'BCQ': {

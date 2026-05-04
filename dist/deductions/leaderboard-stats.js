@@ -11,18 +11,34 @@ import { User } from './leaderboard-users.js';
 const leaderboardUrl = 'https://40ae5vnl08.execute-api.eu-central-1.amazonaws.com/default/dailydeductions';
 const users = {};
 /**
- * returns latest date which has passed 5pm EST
+ * returns latest 5pm America/New_York that the current moment has passed,
+ * as Unix seconds. Independent of the host's local timezone.
  */
 const getLatestIssue = () => {
-    const currentDate = new Date();
-    currentDate.setMilliseconds(0);
-    currentDate.setSeconds(0);
-    currentDate.setMinutes(0);
-    if (currentDate.getHours() < 18) {
-        currentDate.setTime(currentDate.getTime() - (24 * 60 * 60 * 1000));
+    const now = new Date();
+    const nyParts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false,
+    }).formatToParts(now).map(p => [p.type, p.value]));
+    let y = Number(nyParts.year);
+    let m = Number(nyParts.month);
+    let d = Number(nyParts.day);
+    // hour is "00".."23" with hour12:false (Intl returns "24" in some engines for midnight; normalize)
+    const nyHour = Number(nyParts.hour) % 24;
+    // Original behavior: roll back a day if NY hour hasn't reached 18.
+    if (nyHour < 18) {
+        const prev = new Date(Date.UTC(y, m - 1, d) - 24 * 60 * 60 * 1000);
+        y = prev.getUTCFullYear();
+        m = prev.getUTCMonth() + 1;
+        d = prev.getUTCDate();
     }
-    currentDate.setHours(17);
-    return Math.floor(currentDate.getTime() / 1000);
+    // Find the UTC instant for 17:00 on (y,m,d) America/New_York. DST-correct.
+    const guess = new Date(Date.UTC(y, m - 1, d, 17, 0, 0));
+    const guessNyHour = Number(new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York', hour: '2-digit', hour12: false,
+    }).formatToParts(guess).find(p => p.type === 'hour').value) % 24;
+    const target = new Date(guess.getTime() + (17 - guessNyHour) * 60 * 60 * 1000);
+    return Math.floor(target.getTime() / 1000);
 };
 const getUrlForIssue = () => {
     const issueDate = getLatestIssue();
@@ -39,7 +55,8 @@ function fetchLeaderboardData() {
             return response.json();
         }
         catch (e) {
-            console.log(`error fetching data`);
+            console.log(`error fetching data`, e);
+            return [];
         }
     });
 }
@@ -107,6 +124,10 @@ const createButton = (id, val) => {
 function getLeaderboardData() {
     return __awaiter(this, void 0, void 0, function* () {
         const rawData = yield fetchLeaderboardData();
+        if (!rawData || !Array.isArray(rawData)) {
+            console.log('no leaderboard data available');
+            return;
+        }
         // sort by created_by date
         const sortedData = rawData.sort((a, b) => {
             return a.created_at - b.created_at;
