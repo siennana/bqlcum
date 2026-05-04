@@ -42,6 +42,7 @@ const getLatestIssue = () => {
 
 const getUrlForIssue = () => {
   const issueDate = getLatestIssue();
+  console.log(issueDate)
   return `${leaderboardUrl}?issue=${issueDate}`;
 };
 
