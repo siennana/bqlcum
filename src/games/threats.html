@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Threats – Deduction Puzzle by Ben Quick</title>
+<style>
+  :root { --cell: 56px; --gap: 6px; --radius: 14px; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f6f7fb; color: #111; }
+  .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+  h1 { margin: 0 0 8px; font-size: 22px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 18px; }
+  .row { display: flex; gap: 24px; align-items: flex-start; }
+  .board { display: grid; gap: var(--gap); background: #e9ebf3; padding: var(--gap); border-radius: 16px; border: 1px solid #d8dbea;}
+  .cell { width: var(--cell); height: var(--cell); background: #fff; border: 1px solid #d8dbea; border-radius: var(--radius);
+          display: grid; place-items: center; position: relative; user-select: none; }
+  .cell.satisfied { background: #ecfdf5; }
+  .clue { position: absolute; top: 4px; left: 6px; font-size: 11px; padding: 2px 6px; border-radius: 8px; background: #eef0f6; }
+  .remain { position: absolute; bottom: 4px; right: 6px; font-size: 11px; padding: 2px 6px; border-radius: 8px; background: #eef0f6; }
+  .remain.ok { background: #c7f9e9; }
+  .remain.neg { background: #ffd5d5; color:#8a0016; font-weight:600; }
+  .piece { font-weight: 700; font-size: 20px; }
+  .piece.pre { color: #666; }
+  .panel { width: 320px; }
+  .card { background: #fff; border: 1px solid #d8dbea; border-radius: 16px; padding: 12px; }
+  .card + .card { margin-top: 14px; }
+  .label { font-size: 13px; color: #333; font-weight: 600; margin-bottom: 6px; }
+  .grid6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .inv { text-align: center; padding: 8px; border: 1px solid #d8dbea; border-radius: 12px; background: #fff; }
+  .inv input { width: 52px; text-align: center; padding: 4px; border: 1px solid #d0d4e2; border-radius: 8px; }
+  .palette { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .palItem { text-align: center; padding: 10px 6px; border: 1px solid #d8dbea; border-radius: 12px; background: #fff; cursor: grab; }
+  .palItem.empty { opacity: .4; cursor: not-allowed; }
+  .toolbar { display: flex; gap: 8px; margin-top: 12px; }
+  button { padding: 8px 12px; border-radius: 999px; border: 1px solid #cfd3e3; background: #fff; cursor: pointer; }
+  button.primary { background: #111; color: #fff; border-color: #111; }
+  .help { font-size: 13px; color: #555; }
+  .muted { color: #777; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Threats — Deduction Puzzle by Ben Quick</h1>
+    <div class="sub">Drag the pieces on the grid so that the number of squares attacked or occupied equals the numbers shown.  Pieces follow standard chess rules. Pawns attack upward. Each cell shows only the remaining attacks or occupied squares needed.</div>
+
+    <div class="row">
+      <div class="left">
+        <div id="board" class="board"></div>
+        <div class="toolbar">
+          <button id="btnCheck" class="primary">Check</button>
+          <button id="btnNew">New board</button>
+          <button id="btnReveal">Reveal</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="card">
+          <div class="label">Board</div>
+          <select id="sizeSel">
+            <option value="4">4×4</option>
+            <option value="5">5×5</option>
+            <option value="6">6×6</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="label">Inventory</div>
+          <div class="grid6">
+            <div class="inv">K<br><input id="invK" type="number" value="1" min="0"></div>
+            <div class="inv">Q<br><input id="invQ" type="number" value="0" min="0"></div>
+            <div class="inv">R<br><input id="invR" type="number" value="1" min="0"></div>
+            <div class="inv">B<br><input id="invB" type="number" value="1" min="0"></div>
+            <div class="inv">N<br><input id="invN" type="number" value="1" min="0"></div>
+            <div class="inv">P<br><input id="invP" type="number" value="1" min="0"></div>
+          </div>
+          <div class="muted" style="margin-top:8px">Drag from palette below. Drag a placed piece off the board to remove.</div>
+        </div>
+
+        <div class="card">
+          <div class="label">Pieces</div>
+          <div id="palette" class="palette"></div>
+        </div>
+
+        <div class="card help">
+          <div class="label">Details</div>
+          <ul>
+            <li>Click <b>New board</b> after changing size/inventory to generate a hidden solution and the clue grid.</li>
+            <li>Drag pieces onto squares. Numbers update as you add coverage.</li>
+            <li><b>Check</b> compares against the hidden generated solution (prototype; uniqueness not guaranteed).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ====== Utility & chess logic ======
+const PIECES = ['K','Q','R','B','N','P'];
+const raysRook = [[-1,0],[1,0],[0,-1],[0,1]];
+const raysBishop = [[-1,-1],[-1,1],[1,-1],[1,1]];
+const deltasKing = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const deltasKnight = [[-2,-1],[-2,1],[2,-1],[2,1],[-1,-2],[-1,2],[1,-2],[1,2]];
+
+function inBounds(size,r,c){ return r>=0 && c>=0 && r<size && c<size; }
+function emptyGrid(size){ return Array.from({length:size},()=>Array(size).fill(null)); }
+function deepCopy(g){ return g.map(row=>row.slice()); }
+
+function computeCoverage(size, grid){
+  const cover = Array.from({length:size},()=>Array(size).fill(0));
+  const occ = (r,c)=> inBounds(size,r,c) && grid[r][c] !== null;
+
+  for (let r=0;r<size;r++){
+    for (let c=0;c<size;c++){
+      const p = grid[r][c];
+      if (!p) continue;
+      cover[r][c]+=1; // piece occupies its square
+
+      if (p==='K'){
+        for (const [dr,dc] of deltasKing){
+          const nr=r+dr, nc=c+dc;
+          if (inBounds(size,nr,nc)) cover[nr][nc]+=1;
+        }
+      } else if (p==='N'){
+        for (const [dr,dc] of deltasKnight){
+          const nr=r+dr, nc=c+dc;
+          if (inBounds(size,nr,nc)) cover[nr][nc]+=1;
+        }
+      } else if (p==='P'){
+        const nr=r+1;
+        for (const dc of [-1,1]){
+          const nc=c+dc;
+          if (inBounds(size,nr,nc)) cover[nr][nc]+=1;
+        }
+      }
+      if (p==='R' || p==='Q'){
+        for (const [dr,dc] of raysRook){
+          let nr=r+dr, nc=c+dc;
+          while (inBounds(size,nr,nc)){
+            cover[nr][nc]+=1;
+            if (occ(nr,nc)) break; // blocked
+            nr+=dr; nc+=dc;
+          }
+        }
+      }
+      if (p==='B' || p==='Q'){
+        for (const [dr,dc] of raysBishop){
+          let nr=r+dr, nc=c+dc;
+          while (inBounds(size,nr,nc)){
+            cover[nr][nc]+=1;
+            if (occ(nr,nc)) break; // blocked
+            nr+=dr; nc+=dc;
+          }
+        }
+      }
+    }
+  }
+  return cover;
+}
+
+function randChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function generateSolution(size, inventory){
+  const grid = emptyGrid(size);
+  // simple random placement for prototype
+  const cells = [];
+  for (let r=0;r<size;r++) for (let c=0;c<size;c++) cells.push([r,c]);
+  const bag = [];
+  for (const k of PIECES){
+    const n = Number(inventory[k]||0);
+    for (let i=0;i<n;i++) bag.push(k);
+  }
+  // Shuffle cells
+  for (let i=cells.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cells[i],cells[j]]=[cells[j],cells[i]]; }
+  for (const piece of bag){
+    const spot = cells.pop(); if (!spot) break;
+    const [r,c] = spot;
+    grid[r][c] = piece;
+  }
+  return grid;
+}
+
+function countPieces(grid){
+  const counts = {K:0,Q:0,R:0,B:0,N:0,P:0};
+  for (let r=0;r<grid.length;r++) for (let c=0;c<grid.length;c++){
+    const p = grid[r][c]; if (p) counts[p]++;
+  }
+  return counts;
+}
+
+// ====== State ======
+let SIZE = 4;
+let inventory = {K:1,Q:0,R:1,B:1,N:1,P:1};
+let solution = emptyGrid(SIZE);
+let clues = Array.from({length:SIZE},()=>Array(SIZE).fill(0));
+let player = emptyGrid(SIZE);
+
+// ====== DOM helpers ======
+const $board = document.getElementById('board');
+const $palette = document.getElementById('palette');
+const $sizeSel = document.getElementById('sizeSel');
+const $btnNew = document.getElementById('btnNew');
+const $btnCheck = document.getElementById('btnCheck');
+const $btnReveal = document.getElementById('btnReveal');
+
+function readInventoryInputs(){
+  inventory = {
+    K: +document.getElementById('invK').value || 0,
+    Q: +document.getElementById('invQ').value || 0,
+    R: +document.getElementById('invR').value || 0,
+    B: +document.getElementById('invB').value || 0,
+    N: +document.getElementById('invN').value || 0,
+    P: +document.getElementById('invP').value || 0,
+  };
+}
+
+function renderPalette(){
+  const placed = countPieces(player);
+  $palette.innerHTML = '';
+  for (const k of PIECES){
+    const avail = Math.max(0, (inventory[k]||0) - (placed[k]||0));
+    const div = document.createElement('div');
+    div.className = 'palItem' + (avail===0 ? ' empty' : '');
+    div.draggable = avail>0;
+    div.textContent = `${k}  x ${avail}`;
+    div.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('text/plain', k);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    $palette.appendChild(div);
+  }
+}
+
+function renderBoard(){
+  $board.style.gridTemplateColumns = `repeat(${SIZE}, var(--cell))`;
+  $board.innerHTML = '';
+  const coverage = computeCoverage(SIZE, player);
+  for (let r=SIZE-1; r>=0; r--){ // display rank SIZE..1 to show upward pawns visually
+    for (let c=0; c<SIZE; c++){
+      const div = document.createElement('div');
+      div.className = 'cell';
+      const clue = clues[r][c];
+      const cov = coverage[r][c];
+      const rem = clue - cov; // can be negative
+      if (rem === 0) div.classList.add('satisfied');
+
+      div.addEventListener('dragover', (e)=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+      div.addEventListener('drop', (e)=>{
+        const piece = e.dataTransfer.getData('text/plain');
+        if (!piece) return;
+        // enforce inventory
+        const placed = countPieces(player);
+        if ((placed[piece]||0) >= (inventory[piece]||0)) return;
+        player[r][c] = piece;
+        renderPalette();
+        renderBoard();
+      });
+      // click to remove
+      div.addEventListener('click', ()=>{
+        if (player[r][c]){
+          player[r][c] = null;
+          renderPalette();
+          renderBoard();
+        }
+      });
+
+      const br = document.createElement('div');
+      br.className = 'remain' + (rem===0 ? ' ok' : (rem<0 ? ' neg' : ''));
+      br.textContent = rem;
+      div.appendChild(br);
+
+      const p = player[r][c];
+      if (p){
+        const pc = document.createElement('div');
+        pc.className = 'piece';
+        pc.textContent = p;
+        div.appendChild(pc);
+      }
+
+      $board.appendChild(div);
+    }
+  }
+}
+
+// ====== Actions ======
+function regenerate(){
+  readInventoryInputs();
+  solution = generateSolution(SIZE, inventory);
+  clues = computeCoverage(SIZE, solution);
+  player = emptyGrid(SIZE);
+  renderPalette();
+  renderBoard();
+}
+
+$sizeSel.addEventListener('change', ()=>{
+  SIZE = +$sizeSel.value;
+  regenerate();
+});
+
+for (const id of ['invK','invQ','invR','invB','invN','invP']){
+  document.getElementById(id).addEventListener('change', ()=>{
+    // inventory changes only apply when you hit New board
+  });
+}
+
+$btnNew.addEventListener('click', regenerate);
+
+$btnCheck.addEventListener('click', ()=>{
+  const ok = JSON.stringify(player) === JSON.stringify(solution);
+  alert(ok ? '✅ Correct!' : '❌ Not the generated solution. Keep going!');
+});
+
+$btnReveal.addEventListener('click', ()=>{
+  if (confirm('Reveal solution?')){
+    player = deepCopy(solution);
+    renderPalette();
+    renderBoard();
+  }
+});
+
+// initial
+regenerate();
+</script>
+</body>
+</html>
