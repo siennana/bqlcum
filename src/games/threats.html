@@ -5,29 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Threats – Deduction Puzzle by Ben Quick</title>
 <style>
-  :root { --cell: 56px; --gap: 6px; --radius: 14px; }
+  :root { --gap: 6px; --radius: 14px; }
   body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f6f7fb; color: #111; }
   .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
   h1 { margin: 0 0 8px; font-size: 22px; }
   .sub { color: #666; font-size: 13px; margin-bottom: 18px; }
   .row { display: flex; gap: 24px; align-items: flex-start; }
-  .board { display: grid; gap: var(--gap); background: #e9ebf3; padding: var(--gap); border-radius: 16px; border: 1px solid #d8dbea;}
-  .cell { width: var(--cell); height: var(--cell); background: #fff; border: 1px solid #d8dbea; border-radius: var(--radius);
-          display: grid; place-items: center; position: relative; user-select: none; }
+  .board { display: grid; gap: var(--gap); background: #e9ebf3; padding: var(--gap); border-radius: 16px; border: 1px solid #d8dbea;
+           width: 100%; box-sizing: border-box; }
+  .cell { aspect-ratio: 1; background: #fff; border: 1px solid #d8dbea; border-radius: var(--radius);
+          display: grid; place-items: center; position: relative; user-select: none; min-width: 0; }
   .cell.satisfied { background: #ecfdf5; }
   .clue { position: absolute; top: 4px; left: 6px; font-size: 11px; padding: 2px 6px; border-radius: 8px; background: #eef0f6; }
   .remain { position: absolute; bottom: 4px; right: 6px; font-size: 11px; padding: 2px 6px; border-radius: 8px; background: #eef0f6; }
   .remain.ok { background: #c7f9e9; }
   .remain.neg { background: #ffd5d5; color:#8a0016; font-weight:600; }
-  .piece { font-weight: 700; font-size: 20px; }
+  .piece { font-weight: 400; font-size: 50px; line-height: 1; color: #111; }
   .piece.pre { color: #666; }
-  .panel { width: 320px; }
+  .palItem { font-size: 20px; }
+  .inv { font-size: 18px; }
   .card { background: #fff; border: 1px solid #d8dbea; border-radius: 16px; padding: 12px; }
   .card + .card { margin-top: 14px; }
   .label { font-size: 13px; color: #333; font-weight: 600; margin-bottom: 6px; }
   .grid6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   .inv { text-align: center; padding: 8px; border: 1px solid #d8dbea; border-radius: 12px; background: #fff; }
-  .inv input { width: 52px; text-align: center; padding: 4px; border: 1px solid #d0d4e2; border-radius: 8px; }
+  .inv input { width: 52px; text-align: center; padding: 4px; border: 1px solid #d0d4e2; border-radius: 8px; margin-top: 5px }
   .palette { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .palItem { text-align: center; padding: 10px 6px; border: 1px solid #d8dbea; border-radius: 12px; background: #fff; cursor: grab; }
   .palItem.empty { opacity: .4; cursor: not-allowed; }
@@ -36,6 +38,7 @@
   button.primary { background: #111; color: #fff; border-color: #111; }
   .help { font-size: 13px; color: #555; }
   .muted { color: #777; font-size: 12px; }
+  .column { width: 50% }
 </style>
 </head>
 <body>
@@ -44,7 +47,7 @@
     <div class="sub">Drag the pieces on the grid so that the number of squares attacked or occupied equals the numbers shown.  Pieces follow standard chess rules. Pawns attack upward. Each cell shows only the remaining attacks or occupied squares needed.</div>
 
     <div class="row">
-      <div class="left">
+      <div class="column">
         <div id="board" class="board"></div>
         <div class="toolbar">
           <button id="btnCheck" class="primary">Check</button>
@@ -53,7 +56,7 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="column">
         <div class="card">
           <div class="label">Board</div>
           <select id="sizeSel">
@@ -66,12 +69,12 @@
         <div class="card">
           <div class="label">Inventory</div>
           <div class="grid6">
-            <div class="inv">K<br><input id="invK" type="number" value="1" min="0"></div>
-            <div class="inv">Q<br><input id="invQ" type="number" value="0" min="0"></div>
-            <div class="inv">R<br><input id="invR" type="number" value="1" min="0"></div>
-            <div class="inv">B<br><input id="invB" type="number" value="1" min="0"></div>
-            <div class="inv">N<br><input id="invN" type="number" value="1" min="0"></div>
-            <div class="inv">P<br><input id="invP" type="number" value="1" min="0"></div>
+            <div class="inv"><span>♔</span><br><input id="invK" type="number" value="1" min="0"></div>
+            <div class="inv"><span>♕</span><br><input id="invQ" type="number" value="0" min="0"></div>
+            <div class="inv"><span>♖</span><br><input id="invR" type="number" value="1" min="0"></div>
+            <div class="inv"><span>♗</span><br><input id="invB" type="number" value="1" min="0"></div>
+            <div class="inv"><span>♘</span><br><input id="invN" type="number" value="1" min="0"></div>
+            <div class="inv"><span>♙</span><br><input id="invP" type="number" value="1" min="0"></div>
           </div>
           <div class="muted" style="margin-top:8px">Drag from palette below. Drag a placed piece off the board to remove.</div>
         </div>
@@ -82,11 +85,12 @@
         </div>
 
         <div class="card help">
-          <div class="label">Details</div>
+          <div class="label">Description</div>
           <ul>
-            <li>Click <b>New board</b> after changing size/inventory to generate a hidden solution and the clue grid.</li>
-            <li>Drag pieces onto squares. Numbers update as you add coverage.</li>
-            <li><b>Check</b> compares against the hidden generated solution (prototype; uniqueness not guaranteed).</li>
+            <li>Place every piece from your inventory onto the board so that each square's number equals the total count of pieces attacking or occupying it. Drag pieces from the palette onto the grid; the numbers update as you go and turn green when a square is satisfied. Sliding pieces (rook, bishop, queen) are blocked by other pieces. Pawns attack diagonally upward.</li>
+            <li><b>Check</b> — compares your placement against the generated solution and tells you whether it matches.</li>
+            <li><b>New board</b> — regenerates a fresh puzzle using the current size and inventory, then clears your placements.</li>
+            <li><b>Reveal</b> — fills the board with the hidden solution so you can see the intended answer.</li>
           </ul>
         </div>
       </div>
@@ -96,6 +100,7 @@
 <script>
 // ====== Utility & chess logic ======
 const PIECES = ['K','Q','R','B','N','P'];
+const GLYPH = { K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙' };
 const raysRook = [[-1,0],[1,0],[0,-1],[0,1]];
 const raysBishop = [[-1,-1],[-1,1],[1,-1],[1,1]];
 const deltasKing = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
@@ -221,7 +226,7 @@ function renderPalette(){
     const div = document.createElement('div');
     div.className = 'palItem' + (avail===0 ? ' empty' : '');
     div.draggable = avail>0;
-    div.textContent = `${k}  x ${avail}`;
+    div.textContent = `${GLYPH[k]} × ${avail}`;
     div.addEventListener('dragstart', (e)=>{
       e.dataTransfer.setData('text/plain', k);
       e.dataTransfer.effectAllowed = 'move';
@@ -231,7 +236,7 @@ function renderPalette(){
 }
 
 function renderBoard(){
-  $board.style.gridTemplateColumns = `repeat(${SIZE}, var(--cell))`;
+  $board.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
   $board.innerHTML = '';
   const coverage = computeCoverage(SIZE, player);
   for (let r=SIZE-1; r>=0; r--){ // display rank SIZE..1 to show upward pawns visually
@@ -272,7 +277,7 @@ function renderBoard(){
       if (p){
         const pc = document.createElement('div');
         pc.className = 'piece';
-        pc.textContent = p;
+        pc.textContent = GLYPH[p];
         div.appendChild(pc);
       }
 
